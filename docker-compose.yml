@@ -1,0 +1,85 @@
+
+
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+      - "9229:9229"  # Node.js debugger port
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongo:27017/mini-ai-studio
+      - JWT_SECRET=devsecret
+      - UPLOAD_DIR=/data/uploads
+       # - DEBUG=*  Enable all debug logs
+    volumes:
+      - ./backend:/app  # Live code reloading
+      - /app/node_modules  # Prevent overwriting node_modules
+      - backend-upload:/data/uploads  # Persist uploaded files
+    depends_on:
+      mongo:
+        condition: service_healthy
+    stdin_open: true  # Keep container interactive
+    tty: true  # Allocate pseudo-TTY for better logging
+    command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:4000
+    volumes:
+      - ./frontend:/app  # Live code reloading
+     
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=mini-ai-studio
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
+    driver: local
+  mongo-config:
+    driver: local
+  backend-upload:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,37 @@
+{
+  "name": "mini-ai-studio-backend",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx watch --inspect=0.0.0.0:9229 src/index.ts",
+    "dev:debug": "node --inspect-brk=0.0.0.0:9229 --loader ts-node/esm src/index.ts",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "fastify": "^5.6.1",
+    "@fastify/swagger": "^9.5.2",
+    "@fastify/swagger-ui": "^5.2.3",
+    "@fastify/multipart": "^8.0.0",
+    "mongoose": "^8.19.1",
+    "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "pino": "^10.1.0",
+    "pino-pretty": "^13.1.2",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/bcrypt": "^5.0.0",
+    "@types/jest": "^29.5.3",
+    "@types/supertest": "^6.0.3",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.9.3",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.0.0",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
+  }
+}
