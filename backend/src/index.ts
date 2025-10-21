@@ -3,8 +3,7 @@ import mongoose from 'mongoose';
 import pino from 'pino';
 import dotenv from 'dotenv';
 import multipart from '@fastify/multipart';
-import fastifySwagger from '@fastify/swagger';
-import fastifySwaggerUi from '@fastify/swagger-ui';
+
 import path from 'path';
 import fs from 'fs';
 import authRoutes from './routes/auth.js';
@@ -26,7 +25,7 @@ const logger = pino({
 
 const app = Fastify({ logger: { instance: logger } });
 
-app.register(fastifySwagger, {
+/*app.register(fastifySwagger, {
   mode: 'dynamic',
   openapi: {
     openapi: '3.0.0',
@@ -37,9 +36,9 @@ app.register(fastifySwagger, {
   },
   exposeRoute: true,
   routePrefix: '/api/docs'
-});
+});*/
 
-app.register(fastifySwaggerUi, { routePrefix: '/api/docs' });
+//app.register(fastifySwaggerUi, { routePrefix: '/api/docs' });
 app.register(multipart, { attachFieldsToBody: true });
 app.register(authRoutes, { prefix: '/auth' });
 app.register(genRoutes, { prefix: '/api' });
@@ -51,9 +50,9 @@ async function start() {
 
     const address = await app.listen({ port: PORT, host: '0.0.0.0' });
     logger.info(`🚀 Server running at ${address}`);
-    logger.info(`📘 Swagger Docs: http://localhost:${PORT}/api/docs`);
+   
   } catch (err) {
-    logger.error(err);
+    //logger.error(err);
     process.exit(1);
   }
 }

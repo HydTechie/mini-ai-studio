@@ -28,7 +28,7 @@ EXPOSE 9229
 ENV NODE_ENV=development
 
 # Run with debugging enabled and watch mode
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host"]
 
 # Alternative debug command (uncomment if needed):
 # CMD ["node", "--inspect=0.0.0.0:9229", "--watch", "src/index.ts"]

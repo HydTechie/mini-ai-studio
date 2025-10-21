@@ -7,29 +7,20 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4000:4000"
-      - "9229:9229"  # Node.js debugger port
+      - "9229:9229" # Node.js debugger
     environment:
-      - NODE_ENV=development
-      - MONGO_URI=mongodb://mongo:27017/mini-ai-studio
-      - JWT_SECRET=devsecret
-      - UPLOAD_DIR=/data/uploads
-       # - DEBUG=*  Enable all debug logs
+      NODE_ENV: development
+      MONGO_URI: mongodb://mongo:27017/mini-ai-studio
+      JWT_SECRET: devsecret
+      UPLOAD_DIR: /data/uploads
     volumes:
-      - ./backend:/app  # Live code reloading
-      - /app/node_modules  # Prevent overwriting node_modules
-      - backend-upload:/data/uploads  # Persist uploaded files
+      - ./backend:/app          # Live code reloading
+      - /app/node_modules       # Prevent node_modules overwrite
+      - backend-upload:/data/uploads
     depends_on:
-      mongo:
-        condition: service_healthy
-    stdin_open: true  # Keep container interactive
-    tty: true  # Allocate pseudo-TTY for better logging
-    command: npm run dev
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - mongo                   # Only wait for container, no health dependency
+    command: sh -c "sleep 1000 && npm run dev"
+    # Added 'sleep 5' → gives Mongo a few seconds to start up before backend connects
     networks:
       - app-network
 
@@ -40,11 +31,11 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - NODE_ENV=development
-      - VITE_API_URL=http://localhost:4000
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:4000
     volumes:
-      - ./frontend:/app  # Live code reloading
-     
+      - ./frontend:/app
+      - /app/node_modules        # prevent overwriting node_modules
     depends_on:
       - backend
     stdin_open: true
@@ -58,27 +49,25 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=mini-ai-studio
+      MONGO_INITDB_DATABASE: mini-ai-studio
     volumes:
       - mongo-data:/data/db
       - mongo-config:/data/configdb
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
     networks:
       - app-network
     restart: unless-stopped
+    # Healthcheck commented out — avoids frequent check-ins and container noise
+    # healthcheck:
+    #   test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+    #   interval: 30s
+    #   timeout: 5s
+    #   retries: 3
+    #   start_period: 20s
 
 volumes:
   mongo-data:
-    driver: local
   mongo-config:
-    driver: local
   backend-upload:
-    driver: local
 
 networks:
   app-network:
